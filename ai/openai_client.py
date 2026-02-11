@@ -1,31 +1,21 @@
 import os
 from openai import OpenAI
-from openai.types.chat import (
-    ChatCompletionSystemMessageParam,
-    ChatCompletionUserMessageParam
-)
+import json
 
 def get_client():
     return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def ask_llm(system_prompt: str, user_prompt: str) -> str:
+def ask_llm(system_prompt: str, user_prompt: str):
     client = get_client()
 
-    messages = [
-        ChatCompletionSystemMessageParam(
-            role="system",
-            content=system_prompt
-        ),
-        ChatCompletionUserMessageParam(
-            role="user",
-            content=user_prompt
-        )
-    ]
-
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        temperature=0.2
+        model="gpt-4.1-mini",  # daha stabil JSON
+        temperature=0.2,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
     )
 
     return response.choices[0].message.content
+

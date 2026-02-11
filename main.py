@@ -59,12 +59,9 @@ for s in scenarios:
 
 
 # 6️⃣ AI ENRICHMENT
-ai_scenarios = enrich_scenarios(
-    page_type=page_type,
-    base_scenarios=scenarios,
-    ui_elements=ui_elements
-)
+ai_scenarios = enrich_scenarios(page_type, scenarios, ui_elements)
 
-print("\n--- AI ENRICHED SCENARIOS ---")
-for s in ai_scenarios:
-    print("-", s)
+print("\n--- AI STRUCTURED TEST CASES ---")
+
+for case in ai_scenarios:
+    print(case)
