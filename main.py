@@ -1,6 +1,9 @@
-from dotenv import load_dotenv
-load_dotenv()
+import os
 
+from dotenv import load_dotenv
+
+from exporter.excel_exporter import export_to_excel
+from exporter.xray_exporter import export_to_xray_excel
 from parser.parser import extract_elements
 from models.ui_element import UIElement
 
@@ -10,7 +13,9 @@ from analyzer.page_classifier import classify_page
 
 from generator.scenario_generator import generate_scenarios
 from ai.scenario_enricher import enrich_scenarios
+from integrations.jira_xray_cloud import JiraXrayCloud
 
+load_dotenv()
 
 # 1️⃣ HTML'i oku
 with open("input/login.html", "r", encoding="utf-8") as f:
@@ -65,3 +70,16 @@ print("\n--- AI STRUCTURED TEST CASES ---")
 
 for case in ai_scenarios:
     print(case)
+
+# export_to_excel(ai_scenarios)
+export_to_xray_excel(ai_scenarios)
+
+jira = JiraXrayCloud(
+    domain="ai-qa-project",
+    email="emre28usul@gmail.com",
+    api_token=os.getenv("JIRA_TOKEN"),
+    project_key="XSP"
+)
+
+for case in ai_scenarios:
+    jira.create_test_case(case)
