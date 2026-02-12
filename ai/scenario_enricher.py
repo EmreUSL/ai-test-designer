@@ -14,8 +14,15 @@ def enrich_scenarios(page_type, scenarios, ui_elements):
     ]
 
     system_prompt = """
-You are a Senior QA Engineer.
-Generate professional structured manual test cases.
+You are a senior QA Automation Architect.
+Generate a comprehensive set of test scenarios including:
+
+1. Positive test cases
+2. Negative test cases
+3. Edge cases
+4. Boundary value cases
+5. Validation cases
+6. Error handling cases
 Do NOT return JSON.
 Use this exact format:
 

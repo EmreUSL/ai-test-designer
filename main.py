@@ -75,11 +75,84 @@ for case in ai_scenarios:
 export_to_xray_excel(ai_scenarios)
 
 jira = JiraXrayCloud(
-    domain="ai-qa-project",
+    domain="ai-qa-project.atlassian.net",
     email="emre28usul@gmail.com",
     api_token=os.getenv("JIRA_TOKEN"),
     project_key="XSP"
 )
 
+test_keys = []
+
+xray_token = jira.get_xray_token(
+    client_id=os.getenv("CLIENT_ID"),
+    client_secret=os.getenv("CLIENT_SECRET")
+)
+
 for case in ai_scenarios:
-    jira.create_test_case(case)
+    key = jira.create_test_case(case)
+
+    if key:
+        test_keys.append(key)
+
+        ai_steps = case.get("steps", [])
+        formatted_steps = []
+
+        for step in ai_steps:
+
+            if isinstance(step, dict):
+                formatted_steps.append({
+                    "action": step.get("action", ""),
+                    "data": step.get("data", ""),
+                    "result": step.get("expected", "")
+                })
+
+            elif isinstance(step, str):
+                formatted_steps.append({
+                    "action": step.strip(),
+                    "data": "",
+                    "result": case.get("expected_result", "")
+                })
+
+        # ✅ DOĞRU KISIM
+        for step in formatted_steps:
+            jira.add_test_step(
+                xray_token,
+                key,
+                step
+            )
+
+test_set_key = jira.create_test_set("AI Generated Login Test Set")
+jira.add_tests_to_test_set(
+    xray_token,
+    test_set_key,
+    test_keys
+)
+
+test_plan_key = jira.create_test_plan("AI Login Test Plan")
+jira.add_tests_to_test_plan(
+    xray_token,
+    test_plan_key,
+    test_keys
+)
+
+
+execution = jira.create_test_execution(xray_token)
+
+execution_id = execution["issueId"]
+
+
+print("🚀 Execution Created:", execution_id)
+
+test_issue_ids = []
+
+for key in test_keys:
+    issue_id = jira.get_issue_id(key)
+    test_issue_ids.append(issue_id)
+
+jira.add_tests_to_execution(
+    xray_token,
+    execution_id,
+    test_issue_ids
+)
+
+
